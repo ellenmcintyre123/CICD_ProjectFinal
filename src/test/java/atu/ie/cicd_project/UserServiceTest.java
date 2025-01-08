@@ -1,14 +1,19 @@
 package atu.ie.cicd_project;
 
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.*;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.util.Optional;
 
-@SpringBootTest
 public class UserServiceTest {
-    @Autowired
+
+    @Mock
+    private UserRepository userRepository;
+
+    @InjectMocks
     private UserService userService;
 
     @Test
@@ -18,7 +23,24 @@ public class UserServiceTest {
         user.setEmail("john@example.com");
         user.setPassword("password");
 
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
         User createdUser = userService.createUser(user);
         assertNotNull(createdUser.getId());
+    }
+
+    @Test
+    public void testGetUserById() {
+        User user = new User();
+        user.setId("123");
+        user.setName("John");
+        user.setEmail("john@example.com");
+        user.setPassword("password");
+
+        when(userRepository.findById("123")).thenReturn(Optional.of(user));
+
+        User foundUser = userService.getUserById("123");
+        assertNotNull(foundUser);
+        assertEquals(user.getName(), foundUser.getName());
     }
 }
